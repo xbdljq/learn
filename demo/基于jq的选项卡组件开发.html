@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			#div1,#div2,#div3,#div4,#btn1{
+				float: left;margin: 10px;
+			}
+			#div1 div,
+			#div2 div,
+			#div3 div,
+			#div4 div {
+				width: 200px;
+				height: 200px;
+				border: 1px solid #000;
+				display: none;
+			}
+			
+			.active {
+				background-color: palegreen;
+				padding: 2px 15px;
+			}
+		</style>
+		<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+		<script type="text/javascript">
+			/*
+			title: 基于JQ的选项卡组件
+				 Options : event
+												 delay : 延迟
+												 Methods:  nowSel()   设置当前位置
+															 getContent()   获取当前内容
+												Events: beforeClick     点击前触发
+														afterClick     点击后触发
+														
+												JQ中的主动触发：trigger();
+												 
+												 * */
+			$(function() {
+				var t1 = new Tab();
+				t1.init('div1', {});
+
+				var t2 = new Tab();
+				t2.init('div2', {
+					event: 'mouseover'
+				});
+
+				var t3 = new Tab();
+				t3.init('div3', {
+					event: 'mouseover',
+					delay: 200
+				});
+
+				var t4 = new Tab();
+				t4.init('div4', {});
+				t4.nowSel(2);
+
+				$("#btn1").on("click", function() {
+						alert(t4.getContent())
+				})
+				$(t4).on('beforeClick', function() {
+					alert(t4.getContent());
+				});
+
+				$(t4).on('afterClick', function() {
+					alert(t4.getContent());
+				});
+			})
+
+			function Tab() {
+				var oParent = null;
+				this.aInput = null;
+				this.aDiv = null;
+				this.iNow = 0;
+
+				//默认参数，默认是点击事件
+				this.settings = {
+					event: 'click',
+					delay: 0
+				}
+			}
+			Tab.prototype.init = function(oParent, opt) {
+				$.extend(this.settings, opt);
+
+				this.oParent = $("#" + oParent);
+				this.aInput = this.oParent.find('button');
+				this.aDiv = this.oParent.find('div');
+
+				this.change();
+			}
+
+			Tab.prototype.change = function() {
+				var This = this;
+				var timer = null;
+
+				this.aInput.on(this.settings.event, function() {
+					var _this = this;
+
+					if(This.settings.event == 'mouseover' && This.settings.delay) {
+
+						timer = setTimeout(function() {
+							show(_this);
+
+						}, This.settings.delay)
+					} else {
+						show(this);
+					}
+
+				}).mouseout(function() {
+					clearTimeout(timer)
+				})
+
+				function show(obj) {
+					$(This).trigger('beforeClick');
+				
+					This.aInput.attr('class', "");
+					This.aDiv.css('display', 'none');
+				
+					$(obj).attr("class", "active");
+					This.aDiv.eq($(obj).index()).css('display', 'block');
+
+					This.iNow = $(obj).index();
+					$(This).trigger('afterClick');
+				
+				}
+			}
+			Tab.prototype.nowSel = function(index) {
+					this.aInput.attr('class', "");
+					this.aDiv.css('display', 'none');
+
+					this.aInput.eq(index).attr("class", "active");
+					this.aDiv.eq(index).css('display', 'block');
+
+					this.iNow = index;
+				}
+				//			Tab.prototype.getContent = function(){
+				//				return this.aDiv.eq(this.iNow).html();
+				//			}
+			Tab.prototype.getContent = function() {
+				return this.aDiv.eq(this.iNow).html();
+			};
+		</script>
+	</head>
+
+	<body>
+		<div id="div1">
+			<button class="active">1111</button>
+			<button>2222</button>
+			<button>3333</button>
+
+			<div style="display: block;">aaaaa</div>
+			<div>bbbbb</div>
+			<div>cccccc</div>
+		</div>
+
+		<div id="div2">
+			<button class="active">1111</button>
+			<button>2222</button>
+			<button>3333</button>
+
+			<div style="display: block;">aaaaa</div>
+			<div>bbbbb</div>
+			<div>cccccc</div>
+		</div>
+		<div id="div3">
+			<button class="active">1111</button>
+			<button>2222</button>
+			<button>3333</button>
+
+			<div style="display: block;">aaaaa</div>
+			<div>bbbbb</div>
+			<div>cccccc</div>
+		</div>
+		<div id="div4">
+			<button class="active">1111</button>
+			<button>2222</button>
+			<button>3333</button>
+
+			<div style="display: block;">aaaaa</div>
+			<div>bbbbb</div>
+			<div>cccccc</div>
+		</div>
+		<button id="btn1">我是针对div4的按钮</button>
+	</body>
+
+</html>

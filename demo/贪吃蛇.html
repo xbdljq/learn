@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<!--<link rel="stylesheet" type="text/css" href="css/index.css"/>-->
+		<style type="text/css">
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			#container {
+				width: 1000px;
+				height: 550px;
+				border: 1px solid #000;
+				margin: 0 auto;
+			}
+			
+			#container #ground {
+				width: 1000px;
+				height: 500px;
+				background-color: #eeeeee;
+				position: relative;
+			}
+			
+
+			
+			button {
+				width: 80px;
+				height: 30px;
+			}
+			/*-----------------------*/
+			
+			.block {
+				width: 20px;
+				height: 20px;
+				background-color: paleturquoise;
+				float: left;
+			}
+			
+			.snakeBody {
+				width: 20px;
+				height: 20px;
+				box-sizing: border-box;
+				padding: 1px;
+				background-color: yellow;
+				position: absolute;
+				top: 60px;
+				-webkit-border-radius: 7px;
+				-moz-border-radius: 7px;
+				border-radius: 7px;
+			}
+			
+			.snake-block {
+				background: yellow;
+				position: absolute;
+				-webkit-border-radius: 7px;
+				-moz-border-radius: 7px;
+				border-radius: 7px;
+			}
+			
+			.food-block {
+				background: red;
+				position: absolute;
+				-webkit-border-radius: 12px;
+				-moz-border-radius: 12px;
+				border-radius: 12px;
+			}
+		</style>
+
+	</head>
+
+	<body>
+		<div id="container">
+			<div id="ground"></div>
+			<div id="gameControl">
+				<span>获得分数：<span id="nums">0</span></span>
+				<button id="start">开始</button>
+				<button id="pause">暂停</button>
+			</div>
+		</div>
+		<script type="text/javascript">
+			//创建草坪
+			var oGround = document.getElementById("ground"); //oGround  草坪，由50*25个小格组成
+			for(var i = 0; i < 50; i++) {
+				for(var j = 0; j < 25; j++) {
+					var oDiv = document.createElement("div");
+					oDiv.className = "block";
+					oGround.appendChild(oDiv);
+				}
+			}
+			//创建蛇//蛇身数组    snakeBody蛇的身体
+			var snakeBody = new Array(); 
+			//初始状态为3节
+			for(var i = 3; i > 0; i--) { 
+				var oDiv = document.createElement("div");
+				oDiv.className = "block snakeBody";
+				oDiv.style.left = i * 20 + "px";
+				//蛇头
+				if(i == 3) { 
+					oDiv.style.backgroundColor = "blueviolet";
+				}
+				oGround.appendChild(oDiv);
+				//向蛇身数组添加蛇身
+				snakeBody.push(oDiv); 
+			}
+			//创建食物并放置在草坪区
+			var food = createFood();
+			//蛇移动
+			//direction方向   默认情况下向右移动
+			var direction = "right"; 
+			var oBtnStart = document.getElementById("start");
+			var timer = null;
+			oBtnStart.onclick = function() {
+				clearInterval(timer);
+				//每隔300毫秒就移动一个格子    1000毫秒=1秒
+				timer = setInterval(function() { 
+					move(direction);
+					var num = document.getElementById("nums");
+					num.innerHTML = snakeBody.length -3;
+
+				}, 300);
+			}
+
+			//控制蛇转向
+			document.onkeydown = function(e) {
+				e = e || window.event;
+				var keyCode = e.which || e.keyCode;
+				//键码
+				switch(keyCode) {
+					//左
+					case 37: 
+						if(direction != 'right') {
+							direction = 'left';
+							move(direction);
+						}
+						break;
+					//上
+					case 38: 
+						if(direction != 'down') {
+							direction = 'up';
+							move(direction);
+						}
+						break;
+					//右
+					case 39: 
+						if(direction != 'left') {
+							direction = 'right';
+							move(direction);
+						}
+						break;
+					//下
+					case 40: 
+						if(direction != 'up') {
+							direction = 'down';
+							move(direction);
+						}
+						break;
+				}
+
+			};
+
+			//暂停键
+			var oPause = document.getElementById("pause");
+			oPause.onclick = function() {
+				clearInterval(timer);
+			}
+			//蛇移动的方法
+			function move(dir, n) {
+				//取出蛇头
+				var snakeHead = snakeBody[0]; 
+				//	var n = 0;  //分数
+				//snakeBody.length 3   个数从右向左数
+				for(var i = snakeBody.length - 1; i > 0; i--) {
+					snakeBody[i].style.left = snakeBody[i - 1].offsetLeft + "px";
+					snakeBody[i].style.top = snakeBody[i - 1].offsetTop + "px";
+				}
+				switch(dir) {
+					case "left":
+						snakeHead.style.left = snakeHead.offsetLeft - 20 + "px";
+						break;
+					case "up":
+						snakeHead.style.top = snakeHead.offsetTop - 20 + "px";
+						break;
+					case "right":
+						snakeHead.style.left = snakeHead.offsetLeft + 20 + "px";
+						break;
+					case "down":
+						snakeHead.style.top = snakeHead.offsetTop + 20 + "px";
+						break;
+
+				}
+				//判断蛇是否吃到墙
+				if(snakeHead.offsetLeft == -20 || snakeHead.offsetTop == -20 || snakeHead.offsetLeft == 1000 || snakeHead.offsetTop == 500) {
+					alert("撞墙了吧~");
+					clearInterval(timer);
+					//页面保持刷新
+					location.reload(); 
+				}
+				//如果蛇吃身体
+				for(var i = 1; i < snakeBody.length; i++) {
+					if(snakeHead.offsetLeft == snakeBody[i].offsetLeft && snakeHead.offsetTop == snakeBody[i].offsetTop) {
+						alert("连自己都吃，还能不能好好做条蛇");
+						clearInterval(timer);
+					}
+				}
+
+				//如果蛇吃食物
+				if(snakeHead.offsetLeft == food.offsetLeft && snakeHead.offsetTop == food.offsetTop) {
+					food.className = "block snake-block";
+					switch("direction") {
+						case "right":
+							food.style.left = snakeBody[snakeBody.length - 1].offsetLeft - 20 + "px";
+							break;
+						case "down":
+							food.style.top = snakeBody[snakeBody.length - 1].offsetTop - 20 + "px";
+							break;
+						case "left":
+							food.style.left = snakeBody[snakeBody.length - 1].offsetLeft + 20 + "px";
+							break;
+						case "up":
+							food.style.top = snakeBody[snakeBody.length - 1].offsetTop + 20 + "px";
+							break;
+						default:
+							break;
+					}
+					//蛇吃到食物
+					snakeBody.push(food); 
+
+					//		var num = document.getElementById("nums");
+					//		var n = parseInt(num.innerText) ;            //字符串转数字
+					//		alert(n);
+					//		num.innerHTML = n++;
+					
+					//重新生成食物
+					food = createFood(); 
+
+				}
+			}
+			
+			
+			//生成食物
+			function createFood() {
+				var oFood = document.createElement("div");
+				oFood.className = "block food-block";
+				var iLeft = iTop = 0;
+				do {
+					//一个标识，表示是否找到食物合适的位置
+					var bFound = true; 
+					//在0~1000中取一个随机的整数
+					iLeft = Math.floor(Math.random() * 1000); 
+					//随机产生食物的位置      让食物的x坐标为20的倍数，因为草坪是20像素为一格
+					iLeft = iLeft - iLeft % 20; 
+					iTop = Math.floor(Math.random() * 500);
+					iTop = iTop - iTop % 20;
+					for(var i = 0; i < snakeBody.length; i++) {
+						if(snakeBody[i].offsetLeft == iLeft && snakeBody[i].offsetTop == iTop) { //判断食物的那个格子是否与蛇身占有的格子重合
+							//表示食物与蛇身重合
+							bFound = false;
+							break;
+						}
+					}
+					oFood.style.left = iLeft + "px";
+					oFood.style.top = iTop + "px";
+					oGround.appendChild(oFood);
+				} while (!bFound);
+				return oFood;
+			}
+		</script>
+		
+	</body>
+
+</html>
