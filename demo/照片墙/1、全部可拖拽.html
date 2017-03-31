@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			#ul1 {
+				width: 660px;
+				position: relative;
+				margin: 10px auto;
+			}
+			
+			li {
+				width: 200px;
+				height: 150px;
+				margin: 10px;
+				float: left;
+				list-style: none;
+			}
+			#btn1{
+				padding: 5px 20px;
+				border: 1px solid #CCCCCC;
+				-webkit-border-radius: 5px;
+				-moz-border-radius: 5px;
+				border-radius: 5px;
+				margin: 20px;
+				background-color: #FFFFFF;
+			}
+		</style>
+		<script src="js/move.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			window.onload = function() {
+				//获取一个图片数组
+				var aLi = document.getElementsByTagName("li");
+				//定义一个空数组
+				var arr = [];
+				//定义一个设定z-index的临时变量
+				var izIndex = 2;
+
+
+				for(var i = 0; i < aLi.length; i++) {
+					arr.push([aLi[i].offsetLeft, aLi[i].offsetTop]);
+				}
+
+				for(var i = 0; i < aLi.length; i++) {
+					aLi[i].style.position = "absolute";
+					aLi[i].style.left = arr[i][0] + 'px';
+					aLi[i].style.top = arr[i][1] + 'px';
+					aLi[i].style.margin = 0;
+				}
+
+				for(var i = 0; i < aLi.length; i++) {
+					aLi[i].index = i;
+					Drag(aLi[i]);
+				}
+
+				//封装一个拖拽方法
+				function Drag(obj) {
+					var disX = 0;
+					var disY = 0;
+					obj.onmousedown = function() {
+						var ev = ev || window.event;
+						obj.style.zIndex = izIndex++;
+
+						disX = ev.clientX - obj.offsetLeft;
+						disY = ev.clientY - obj.offsetTop;
+
+						document.onmousemove = function(ev) {
+							var ev = ev || window.event;
+							obj.style.left = ev.clientX - disX + 'px';
+							obj.style.top = ev.clientY - disY + 'px';
+
+							for(var i = 0; i < aLi.length; i++) {
+								aLi[i].style.border = '';
+							}
+
+						}
+
+						document.onmouseup = function() {
+							document.onmousemove = null;
+							document.onmouseup = null;
+
+							
+						}
+						return false;
+					}
+				}
+
+			
+			}
+
+			
+		</script>
+	</head>
+
+	<body>
+		<button id="btn1">点击我随机排列照片</button>
+		<ul id="ul1">
+			<li><img src="img/1.gif" /></li>
+			<li><img src="img/2.gif" /></li>
+			<li><img src="img/3.gif" /></li>
+			<li><img src="img/4.gif" /></li>
+			<li><img src="img/5.gif" /></li>
+			<li><img src="img/6.gif" /></li>
+			<li><img src="img/7.gif" /></li>
+			<li><img src="img/8.gif" /></li>
+			<li><img src="img/9.gif" /></li>
+
+		</ul>
+	</body>
+
+</html>
